@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
+<html lang="es"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,7 +26,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .form-label{font-size:12px;color:#6B7280;display:block;margin-bottom:5px}
 .form-input{width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #E5E7EB;font-size:14px;color:#111827;outline:none;background:#fff;-webkit-appearance:none}
 .form-input:focus{border-color:#7C3AED}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .form-group{margin-bottom:14px}
 textarea.form-input{resize:none;font-family:inherit}
 .badge{border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;display:inline-block}
@@ -52,6 +51,7 @@ textarea.form-input{resize:none;font-family:inherit}
 .entry-total{font-size:18px;font-weight:700}
 .entry-note{font-size:13px;color:#4B5563;margin-top:8px;line-height:1.5}
 .badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+}
 .period-btn{padding:10px 14px;border-radius:12px;border:1.5px solid #E5E7EB;cursor:pointer;background:#FAFAFA;color:#374151;font-size:13px;text-align:left;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;width:100%}
 .period-btn.active{border-color:#7C3AED;background:#EDE9FE;color:#7C3AED;font-weight:600}
 .current-badge{font-size:10px;background:#7C3AED;color:#fff;border-radius:20px;padding:2px 8px}
@@ -75,7 +75,7 @@ textarea.form-input{resize:none;font-family:inherit}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
 </head>
-<body>
+<body class="">
 <div class="app">
   <div class="header">
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -105,7 +105,7 @@ textarea.form-input{resize:none;font-family:inherit}
         <span id="rec-label">Grabar audio</span>
       </button>
       <div id="rec-processing" class="processing" style="display:none">Procesando con IA...</div>
-      <audio id="rec-player" controls style="width:100%;height:36px;border-radius:8px;margin-top:10px;display:none"></audio>
+      <audio id="rec-player" controls="" style="width:100%;height:36px;border-radius:8px;margin-top:10px;display:none"></audio>
     </div>
     <div class="card">
       <div class="card-title"> Detalles del dia</div>
@@ -132,7 +132,7 @@ textarea.form-input{resize:none;font-family:inherit}
     <div class="card">
       <div class="card-title"> Evidencia fotografica</div>
       <button class="btn-add-photo" onclick="document.getElementById('photo-input').click()">+ Agregar fotos</button>
-      <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this)">
+      <input type="file" id="photo-input" accept="image/*" multiple="" style="display:none" onchange="handlePhotos(this)">
       <div class="photo-grid" id="photo-grid"></div>
     </div>
     <button class="btn-primary" onclick="saveEntry()">Guardar registro</button>
@@ -173,6 +173,7 @@ textarea.form-input{resize:none;font-family:inherit}
 const START_DATE = "2026-03-23";
 const DAY_COLORS = ["#7C3AED","#2563EB","#059669","#EA580C","#DB2777","#D97706"];
 let entries = JSON.parse(localStorage.getItem("wl_entries") || "null") || [{id:1,date:"2026-03-23",start:"08:00",end:"16:00",note:"Primer dia de trabajo",photos:[],audioUrl:null},{id:2,date:"2026-03-24",start:"08:00",end:"16:00",note:"",photos:[],audioUrl:null},{id:3,date:"2026-03-25",start:"08:00",end:"16:00",note:"",photos:[],audioUrl:null},{id:4,date:"2026-03-26",start:"08:00",end:"16:30",note:"",photos:[],audioUrl:null},{id:5,date:"2026-03-27",start:"08:00",end:"16:00",note:"",photos:[],audioUrl:null}];
+,photos:[],audioUrl:null},{id:2,date:"2026-03-24",start:"08:00",end:"16:00",note:"",photos:[],audioUrl:null},{id:3,date:"2026-03-25",start:"08:00",end:"16:00",note:"",photos:[],audioUrl:null},{id:4,date:"2026-03-26",start:"08:00",end:"16:30",note:"",photos:[],audioUrl:null},{id:5,date:"2026-03-27",start:"08:00",end:"16:00",note:"",photos:[],audioUrl:null}];
 let formPhotos=[],currentAudioUrl=null,mediaRec=null,audioChunks=[],isRec=false,activePeriodIdx=null;
 function save(){localStorage.setItem("wl_entries",JSON.stringify(entries));}
 function toMins(t){if(!t)return 0;const[h,m]=t.split(":").map(Number);return h*60+m;}
@@ -189,7 +190,7 @@ function handlePhotos(inp){Array.from(inp.files).forEach(f=>{const r=new FileRea
 function renderPhotoGrid(){const g=document.getElementById("photo-grid");g.innerHTML=formPhotos.map((p,i)=>`<div class="photo-wrap"><img src="${p}" class="photo-thumb" onclick="openModal('${p}')"><button class="photo-del" onclick="removePhoto(${i})">x</button></div>`).join("");}
 function removePhoto(i){formPhotos.splice(i,1);renderPhotoGrid();}
 async function toggleRec(){if(isRec){mediaRec.stop();isRec=false;return;}try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});audioChunks=[];mediaRec=new MediaRecorder(stream);mediaRec.ondataavailable=e=>audioChunks.push(e.data);mediaRec.onstop=()=>{stream.getTracks().forEach(t=>t.stop());processAudio();};mediaRec.start();isRec=true;document.getElementById("btn-rec").className="btn-rec active";document.getElementById("rec-dot").style.background="#DB2777";document.getElementById("rec-label").textContent="Detener grabacion";}catch{alert("No se pudo acceder al microfono.");}}
-async function processAudio(){document.getElementById("btn-rec").className="btn-rec idle";document.getElementById("rec-dot").style.background="#7C3AED";document.getElementById("rec-label").textContent="Grabar audio";const blob=new Blob(audioChunks,{type:"audio/webm"});currentAudioUrl=URL.createObjectURL(blob);const player=document.getElementById("rec-player");player.src=currentAudioUrl;player.style.display="block";document.getElementById("rec-processing").style.display="block";try{const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:300,messages:[{role:"user",content:[{type:"text",text:`Extrae de este mensaje de trabajo: hora_inicio (HH:MM 24h), hora_fin (HH:MM 24h), nota. Si no hay hora usa null. Responde SOLO JSON sin markdown: {"hora_inicio":"...","hora_fin":"...","nota":"..."}`}]}]})});const data=await res.json();const txt=data.content?.[0]?.text||"{}";const p=JSON.parse(txt.replace(/```json|```/g,"").trim());if(p.hora_inicio)document.getElementById("inp-start").value=p.hora_inicio;if(p.hora_fin)document.getElementById("inp-end").value=p.hora_fin;if(p.nota)document.getElementById("inp-note").value=p.nota;previewHours();}catch{}document.getElementById("rec-processing").style.display="none";}
+async function processAudio(){document.getElementById("btn-rec").className="btn-rec idle";document.getElementById("rec-dot").style.background="#7C3AED";document.getElementById("rec-label").textContent="Grabar audio";const blob=new Blob(audioChunks,{type:"audio/webm"});currentAudioUrl=URL.createObjectURL(blob);const player=document.getElementById("rec-player");player.src=currentAudioUrl;player.style.display="block";document.getElementById("rec-processing").style.display="block";try{const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:300,messages:[{role:"user",content:[{type:"text",text:"Extrae de este mensaje de trabajo: hora_inicio (HH:MM 24h), hora_fin (HH:MM 24h), nota. Si no hay hora usa null. Responde SOLO JSON sin markdown: {\"hora_inicio\":\"...\",\"hora_fin\":\"...\",\"nota\":\"...\"}"}]}]})});const data=await res.json();const txt=data.content?.[0]?.text||"{}";const p=JSON.parse(txt.replace(/\`\`\`json|\`\`\`|/g,"").trim());if(p.hora_inicio)document.getElementById("inp-start").value=p.hora_inicio;if(p.hora_fin)document.getElementById("inp-end").value=p.hora_fin;if(p.nota)document.getElementById("inp-note").value=p.nota;previewHours();}catch{}document.getElementById("rec-processing").style.display="none";}
 function saveEntry(){const date=document.getElementById("inp-date").value;const start=document.getElementById("inp-start").value;const end=document.getElementById("inp-end").value;const note=document.getElementById("inp-note").value;const h=calcH(start,end);if(!h.total){alert("Verifica las horas");return;}const entry={id:Date.now(),date,start,end,note,photos:[...formPhotos],audioUrl:currentAudioUrl};entries=[entry,...entries.filter(e=>e.date!==date)].sort((a,b)=>b.date.localeCompare(a.date));save();updateHeader();document.getElementById("saved-msg").style.display="block";setTimeout(()=>{document.getElementById("saved-msg").style.display="none";document.getElementById("inp-date").value=todayStr();document.getElementById("inp-start").value="08:00";document.getElementById("inp-end").value="17:00";document.getElementById("inp-note").value="";document.getElementById("rec-player").style.display="none";document.getElementById("hours-preview").style.display="none";formPhotos=[];currentAudioUrl=null;renderPhotoGrid();},1400);}
 function renderHistorial(){const el=document.getElementById("historial-list");if(!entries.length){el.innerHTML=`<div style="text-align:center;color:#9CA3AF;padding:40px 0">Sin registros aun</div>`;return;}el.innerHTML=entries.map((e,i)=>{const h=calcH(e.start,e.end),c=DAY_COLORS[i%DAY_COLORS.length];return `<div class="entry-card" style="border-left:4px solid ${c}"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="entry-date">${fmtDate(e.date)}</div><div class="entry-time">${e.start} - ${e.end}</div></div><div class="entry-total" style="color:${c}">${fmtH(h.total)}</div></div><div class="badges"><span class="badge badge-reg">${fmtH(h.reg)} regular</span>${h.ot>0?`<span class="badge badge-ot">${fmtH(h.ot)} overtime</span>`:""}${e.audioUrl?`<span class="badge badge-audio"> audio</span>`:""}${e.photos?.length?`<span class="badge badge-photo"> ${e.photos.length} foto${e.photos.length>1?"s":""}</span>`:""}</div>${e.note?`<div class="entry-note">${e.note}</div>`:""}${e.photos?.length?`<div class="photo-grid">${e.photos.map(p=>`<img src="${p}" class="photo-thumb" onclick="openModal('${p}')" style="width:60px;height:60px">`).join("")}</div>`:""}${e.audioUrl?`<audio controls src="${e.audioUrl}" style="width:100%;height:32px;border-radius:8px;margin-top:10px"></audio>`:""}</div>`}).join("");}
 function renderReporte(){const ps=getPeriods(),ci=curPeriodIdx(ps);if(activePeriodIdx===null)activePeriodIdx=ci;const p=ps[activePeriodIdx];const pe=entries.filter(e=>e.date>=p.start&&e.date<=p.end);const tot=pe.reduce((s,e)=>s+calcH(e.start,e.end).total,0);const reg=pe.reduce((s,e)=>s+calcH(e.start,e.end).reg,0);const ot=pe.reduce((s,e)=>s+calcH(e.start,e.end).ot,0);document.getElementById("period-list").innerHTML=ps.map((pp,i)=>`<button class="period-btn ${i===activePeriodIdx?"active":""}" onclick="selectPeriod(${i})"><span>${pp.label}</span>${i===ci?`<span class="current-badge">Actual</span>`:""}</button>`).join("");const sc=document.getElementById("rep-stats");const sdata=[["Total",fmtH(tot),"#7C3AED","#EDE9FE"],["Regular",fmtH(reg),"#059669","#D1FAE5"],["Overtime",fmtH(ot),"#EA580C","#FFEDD5"],["Dias",pe.length,"#2563EB","#DBEAFE"]];sc.innerHTML=sdata.map(([l,v,c,bg])=>`<div class="stat-card" style="background:${bg}"><div class="stat-card-label" style="color:${c}">${l}</div><div class="stat-card-val" style="color:${c}">${v}</div></div>`).join("");if(pe.length){document.getElementById("rep-bars").style.display="block";document.getElementById("rep-bars-content").innerHTML=pe.map((e,i)=>{const h=calcH(e.start,e.end),mx=600;const rw=Math.round(h.reg/mx*100),ow=Math.round(h.ot/mx*100);return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:#374151;font-weight:500">${fmtDate(e.date)}</span><span style="color:${DAY_COLORS[i%DAY_COLORS.length]};font-weight:700">${fmtH(h.total)}</span></div><div class="bar-wrap"><div class="bar-reg ${ow===0?"full":""}" style="width:${rw}%"></div>${ow>0?`<div class="bar-ot" style="width:${ow}%"></div>`:""}</div></div>`}).join("");}else{document.getElementById("rep-bars").style.display="none";}}
@@ -201,6 +202,4 @@ function updateHeader(){const ps=getPeriods(),p=ps[curPeriodIdx(ps)];document.ge
 function openModal(src){document.getElementById("modal-img").src=src;document.getElementById("modal").style.display="flex";}
 function closeModal(){document.getElementById("modal").style.display="none";}
 initDate();updateHeader();
-</script>
-</body>
-</html>';
+</script></body></html>
